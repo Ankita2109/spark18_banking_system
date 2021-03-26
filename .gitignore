@@ -1,0 +1,16 @@
+#ignoring objects or archives
+*.[oa]
+#ignoring temp files
+*~
+
+#PY compiled files/directories
+__pycache__/
+__init__.py
+
+#IDE generated files/directories
+.idea/
+.vscode/
+.ipynb_checkpoints/
+
+#npm generated files/directories
+node_modules/
