@@ -18,47 +18,77 @@ def do_transaction(customer_data, login_id, trans_hist):
 [3] Enquiry
 [4] Quit doing transaction
 Please select anyone of the above options : ''')
-    while transaction_type !="4" :
+    while transaction_type != "4":
         if (transaction_type == "1"):
-            try :
+            try:
                 amt = float(input("Enter the amount you want to deposit: "))
-                if amt < 0 :
+                if amt < 0:
                     print("Amount should be a positive float value")
-                else :
-                    customer_data[login_id]["balance"] = customer_data[login_id][
-                                                             "balance"] + amt
-                    print("updated balance : ", customer_data[login_id]["balance"])
+                else:
+                    customer_data[login_id]["balance"] = \
+                    customer_data[login_id][
+                        "balance"] + amt
+                    print("updated balance : ",
+                          customer_data[login_id]["balance"])
                     np.save("customer_data.npy", customer_data)
-                    trans_hist["date_time"].append(dt.datetime.utcnow().timestamp())
-                    trans_hist["balance"].append(customer_data[login_id]["balance"])
+                    current_datetime = dt.datetime.utcnow()
+                    trans_hist["date_time"].append(current_datetime.timestamp())
+                    trans_hist["balance"].append(
+                        customer_data[login_id]["balance"])
                     trans_hist["transaction_type"].append("deposit")
-            except :
+                    d = {
+                        "date_time": [current_datetime],
+                        "balance": [customer_data[login_id]["balance"]]
+                    }
+                    print("Sending email to ", login_id)
+                    subject = "Spark18 bank transaction done by " + login_id
+                    body = "Please find attached transaction done on " + str(
+                        current_datetime) + ", deposit: " + str(amt)
+                    mail_transaction(pd.DataFrame(data = d), login_id, subject,
+                                     body, login_id)
+            except:
                 print("Amount should be a positive float value")
         elif (transaction_type == "2"):
-            try :
+            try:
                 amt = float(input("Enter the amount you want to withdraw: "))
-                if amt < 0 :
+                if amt < 0:
                     print("Enter a valid positive float value")
-                else :
+                else:
                     if amt > customer_data[login_id]["balance"]:
                         print(
                             "amount withdrawn is greater than the current balance in account\ncurrent balance : ",
                             customer_data[login_id]["balance"])
                     else:
-                        customer_data[login_id]["balance"] = customer_data[login_id][
-                                                                 "balance"] - amt
-                        print("updated balance : ", customer_data[login_id]["balance"])
+                        customer_data[login_id]["balance"] = \
+                        customer_data[login_id][
+                            "balance"] - amt
+                        print("updated balance : ",
+                              customer_data[login_id]["balance"])
                         np.save("customer_data.npy", customer_data)
-                        trans_hist["date_time"].append(dt.datetime.utcnow().timestamp())
-                        trans_hist["balance"].append(customer_data[login_id]["balance"])
+                        current_datetime = dt.datetime.utcnow()
+                        trans_hist["date_time"].append(
+                            current_datetime.timestamp())
+                        trans_hist["balance"].append(
+                            customer_data[login_id]["balance"])
                         trans_hist["transaction_type"].append("withdrawl")
-            except :
+                        d = {
+                            "date_time": [current_datetime],
+                            "balance": [customer_data[login_id]["balance"]]
+                        }
+                        print("Sending email to ", login_id)
+                        subject = "Spark18 bank transaction done by " + login_id
+                        body = "Please find attached transaction done on " + str(
+                            current_datetime) + ", withdrawl: " + str(amt)
+                        mail_transaction(pd.DataFrame(data=d), login_id,
+                                         subject,
+                                         body, login_id)
+            except:
                 print("Enter a valid positive float value")
         elif (transaction_type == "3"):
             print("Current Balance : ", customer_data[login_id]["balance"])
         elif (transaction_type == "4"):
             print("Don't want to do any transaction")
-        else :
+        else:
             print("Please enter a valid input")
         transaction_type = input('''[1] Deposit
 [2] Withdraw
@@ -74,7 +104,8 @@ def load_transaction_history(login_id):
         return pd.read_csv(os.path.join(foldername, filename),
                            index_col=False).to_dict("list")
     else:
-        print("No transaction history for any accounts found, initiating new history ")
+        print(
+            "No transaction history for any accounts found, initiating new history ")
         return {
             "date_time": [],
             "balance": [],
@@ -85,18 +116,18 @@ def load_transaction_history(login_id):
 def save_transaction_history(trans_hist, login_id):
     foldername = "transaction_history"
     filename = hashlib.sha256(login_id.encode("utf8")).hexdigest() + ".csv"
-    if not os.path.exists(foldername) :
+    if not os.path.exists(foldername):
         os.mkdir(foldername)
     pd.DataFrame(data=trans_hist).to_csv(os.path.join(foldername, filename),
                                          index=False)
 
 
-def view_download_transaction(customer_data, login_id, manager_id):
+def view_download_transaction(login_id, manager_id):
     print("please enter the date time period you want to see transaction")
     valid_date = False
     choice = "y"
-    while choice == "y" or choice == "Y" :
-        try :
+    while choice == "y" or choice == "Y":
+        try:
             fr_yy = int(input("from year: "))
             fr_mm = int(input("from month: "))
             fr_dd = int(input("from day: "))
@@ -107,10 +138,11 @@ def view_download_transaction(customer_data, login_id, manager_id):
             to_date = dt.datetime(year=to_yy, month=to_mm, day=to_dd)
             choice = "n"
             valid_date = True
-        except :
-            choice = input("This is not a valid date.Do you want to try again , 'y' for yes: ")
+        except:
+            choice = input(
+                "This is not a valid date.Do you want to try again , 'y' for yes: ")
 
-    if valid_date :
+    if valid_date:
         trans_hist = load_transaction_history(login_id)
         time_trans_hist = {
             "date_time": [],
@@ -120,7 +152,8 @@ def view_download_transaction(customer_data, login_id, manager_id):
         index = 0
         for timestamp in trans_hist["date_time"]:
             if timestamp >= fr_date.timestamp() and timestamp <= to_date.timestamp():
-                time_trans_hist["date_time"].append(str(dt.datetime.fromtimestamp(timestamp)))
+                time_trans_hist["date_time"].append(
+                    str(dt.datetime.fromtimestamp(timestamp)))
                 time_trans_hist["balance"].append(trans_hist["balance"][index])
                 time_trans_hist["transaction_type"].append(
                     trans_hist["transaction_type"][index])
@@ -131,22 +164,22 @@ def view_download_transaction(customer_data, login_id, manager_id):
         to_mail = input('''[1] Mail yourself this transaction 
 [2] Quit 
 Please select anyone of the above options :  ''')
-        while to_mail != "2" :
-            if to_mail == "1" :
-                mail_transaction(trans_df, login_id, fr_date, to_date, manager_id)
+        while to_mail != "2":
+            if to_mail == "1":
+                subject = "Spark18 bank transaction history for " + login_id
+                body = "Please find attached transaction history for the billing period :" + str(
+                    fr_date) + " to " + str(to_date)
+                mail_transaction(trans_df, login_id, subject, body, manager_id)
                 break
-            elif to_mail != "2" :
+            elif to_mail != "2":
                 print("Please select a valid option")
                 to_mail = input('''[1] Mail yourself this transaction 
 [2] Quit
 Please select anyone of the above options :  ''')
 
-def mail_transaction(trans_df, login_id, fr_date, to_date, manager_id):
-    subject = "Spark18 bank transaction history for " + login_id
-    body = "Please find attached transaction history for the billing period :" + str(
-        fr_date) + " to " + str(to_date)
+
+def mail_transaction(trans_df, login_id, subject, body, receiver_email):
     sender_email = "spark18test@gmail.com"
-    receiver_email = manager_id
     password = "spark_18@ankita"
 
     message = MIMEMultipart()
@@ -158,9 +191,7 @@ def mail_transaction(trans_df, login_id, fr_date, to_date, manager_id):
 
     foldername = "transaction_history"
     filename = hashlib.sha256(
-        login_id.encode("utf8")).hexdigest() + "transaction-history-" + str(
-        fr_date.timestamp()) + \
-               str(to_date.timestamp()) + ".csv"
+        login_id.encode("utf8")).hexdigest() + "transaction-history.csv"
     trans_df.to_csv(os.path.join(foldername, filename), index=False)
 
     with open(os.path.join(foldername, filename), "rb") as attachment:
@@ -244,9 +275,7 @@ def do_manager_login(customer_data):
         for index in selected_indices:
             if int(index) < len(key_index) and int(index) > -1:
                 print(index, key_index[int(index)])
-                view_download_transaction(customer_data,
-                                          key_index[int(index)],
-                                          manager_id)
+                view_download_transaction(key_index[int(index)], manager_id)
     else:
         print("Invalid Manager Password")
 
