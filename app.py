@@ -10,6 +10,10 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import json
+
+with open("config.json", "r") as config_file :
+    config = json.load(config_file)
 
 
 def do_transaction(customer_data, login_id, trans_hist):
@@ -179,8 +183,8 @@ Please select anyone of the above options :  ''')
 
 
 def mail_transaction(trans_df, login_id, subject, body, receiver_email):
-    sender_email = "spark18test@gmail.com"
-    password = "spark_18@ankita"
+    sender_email = config["mailbox_id"]
+    password = config["mailbox_pwd"]
 
     message = MIMEMultipart()
     message["From"] = sender_email
@@ -257,32 +261,45 @@ def do_manager_login(customer_data):
     manager_id = input("Please enter manager id: ")
     manager_pwd = input("Please enter manager password: ")
 
-    if (manager_id == "spark18manager@gmail.com") and (
+    if (manager_id == config["manager_id"]) and (
             hashlib.sha256(manager_pwd.encode("utf8")).hexdigest() ==
-            customer_data[manager_id]["pwd"]):
-
-        key_index = []
-        index = 0
-        for email_id in customer_data:
-            if email_id != manager_id:
-                print(index, email_id)
-                key_index.append(email_id)
-                index += 1
-        selection = input(
-            "please select the indexes of customers you want to view transactions for, separated by spaces: ")
-        selected_indices = np.unique(re.findall(r"\b\d+\b", selection))
-        print("you have selected the following valid indices : ")
-        for index in selected_indices:
-            if int(index) < len(key_index) and int(index) > -1:
-                print(index, key_index[int(index)])
-                view_download_transaction(key_index[int(index)], manager_id)
+            hashlib.sha256(config["manager_pwd"].encode("utf8")).hexdigest()):
+        ch = "y"
+        while(ch == "y" or ch == "Y"):
+            print("\nList of customers in our database: ")
+            key_index = []
+            index = 0
+            for email_id in customer_data:
+                if email_id != manager_id:
+                    print(index, email_id)
+                    key_index.append(email_id)
+                    index += 1
+            selection = input(
+                "\nplease select the indexes of customers you want to view transactions for, separated by spaces: ")
+            selected_indices = np.unique(re.findall(r"\b\d+\b", selection))
+            if len(selected_indices) :
+                found = False
+                for index in selected_indices:
+                    if int(index) < len(key_index) and int(index) > -1:
+                        print(index, key_index[int(index)])
+                        found = True
+                if found :
+                    print("you have selected the following valid indices : ")
+                    for index in selected_indices:
+                        if int(index) < len(key_index) and int(index) > -1:
+                            print("view transactions for : ", key_index[int(index)])
+                            view_download_transaction(key_index[int(index)], manager_id)
+                else :
+                    print("you have not selected any valid indices")
+            else :
+                print("you have not selected any valid indices")
+            ch = input("select again, 'y' for yes: " )
     else:
         print("Invalid Manager Password")
 
 
 if __name__ == '__main__':
     customer_data = np.load("customer_data.npy", allow_pickle=True).tolist()
-
     option = input('''[1] Login 
 [2] Register 
 [3] Login as Manager
