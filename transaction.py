@@ -26,6 +26,7 @@ class transaction:
             customer
         login_id: takes the login_id of the customer to login in the app
         trans_hist:contains the customer transaction details
+        Raise exception:amount deposited or withdrawn need to be positive float value
 
         '''
         #m = mailer()
@@ -116,6 +117,12 @@ Please select anyone of the above options : ''')
 
 
     def load_transaction_history(self,login_id):
+        '''
+        does the loading of the transaction history
+        Args:
+        login_id:mail id of the user
+        return:create new transaction history if no transaction exits
+        '''
         foldername = "transaction_history"
         filename = hashlib.sha256(login_id.encode("utf8")).hexdigest() + ".csv"
         if os.path.exists(os.path.join(foldername, filename)):
@@ -132,6 +139,13 @@ Please select anyone of the above options : ''')
 
 
     def save_transaction_history(self,trans_hist, login_id):
+        '''
+        save the transaction history as csv file
+        Args:
+        trans_hist:contains the transaction history of the customer
+        login_id:mail id of the customers
+
+        '''
         foldername = "transaction_history"
         filename = hashlib.sha256(login_id.encode("utf8")).hexdigest() + ".csv"
         if not os.path.exists(foldername):
@@ -141,6 +155,14 @@ Please select anyone of the above options : ''')
 
 
     def view_download_transaction(self,login_id, manager_id):
+        '''
+        user or manager can downlaod the customers transaction details
+        Args:
+        login_id:mail id of the customer
+        manager_id:mail id of the manager
+        Raise Exception: for valid input of th date to view the transaction
+            history
+        '''
         self.ml =mailer()
         print("please enter the date time period you want to see transaction")
         valid_date = False
