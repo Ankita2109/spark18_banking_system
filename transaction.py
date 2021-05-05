@@ -1,19 +1,34 @@
+
 import datetime as dt
 import hashlib
 import json
 import os
-
 import numpy as np
 import pandas as pd
 from mailer import mailer
 
-class transaction:
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
 
-    with open("config.json", "r") as config_file:
-        config = json.load(config_file)
+class transaction:
+    '''
+    The class contains the transactions options for the customer
+    '''
+
+    def __init__(self):
+        self.m = mailer()
 
     def do_transaction(self,customer_data, login_id, trans_hist):
-        m = mailer()
+        '''
+        does the transactions
+        Args:
+        customer_data: Dictionary that contains the information about the
+            customer
+        login_id: takes the login_id of the customer to login in the app
+        trans_hist:contains the customer transaction details
+
+        '''
+        #m = mailer()
         transaction_type = input('''[1] Deposit
 [2] Withdraw
 [3] Enquiry
@@ -46,7 +61,7 @@ Please select anyone of the above options : ''')
                         subject = "Spark18 bank transaction done by " + login_id
                         body = "Please find attached transaction done on " + str(
                             current_datetime) + ", deposit: " + str(amt)
-                        m.mail_transaction(pd.DataFrame(data = d), login_id, subject,
+                        self.m.mail_transaction(pd.DataFrame(data = d), login_id, subject,
                                                 body, login_id)
                 except:
                     print("Amount should be a positive float value")

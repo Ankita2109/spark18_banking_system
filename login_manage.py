@@ -5,9 +5,19 @@ from transaction import transaction
 
 
 class loginManage:
+    '''
+    The class contains the login, register options for the customer and
+            bank manager
+    '''
+    def __init__(self):
+
+        self.tr = transaction()
 
     def input_values(self):
-        self.tr = transaction()
+        '''
+        take the input as login id and password by users
+        '''
+        #self.tr = transaction()
         customer_data = np.load("customer_data.npy", allow_pickle=True).tolist()
         option = input('''[1] Login 
         [2] Register 
@@ -33,7 +43,12 @@ class loginManage:
         return customer_data
 
     def do_login(self,customer_data):
+        '''
+        does the login of customer
+        args:
+        customer_data:dictionary containing the customer data
 
+        '''
         login_id = input("Please enter your login id : ")
         login_pwd = input("please enter your password : ")
         if (login_id in customer_data) and (
@@ -48,6 +63,12 @@ class loginManage:
 
 
     def do_register(self,customer_data):
+        '''
+        does the registration of new customers
+        args:
+        customer_data: add new user in the dictionary of customer data
+
+        '''
         login_id = input("Please enter your email id : ")
         login_pwd_0 = input("please enter your password : ")
         login_pwd_1 = input("confirm password : ")
@@ -66,7 +87,12 @@ class loginManage:
 
 
     def do_manager_login(self,customer_data):
+        '''
+        handles the login of only manager
+        args:
+        customer_data:dictionary containing the detail of the customers
 
+        '''
         manager_id = input("Please enter manager id: ")
         manager_pwd = input("Please enter manager password: ")
 

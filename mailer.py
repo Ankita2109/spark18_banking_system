@@ -9,8 +9,20 @@ from email.mime.text import MIMEText
 
 
 class mailer:
-
+    '''
+        The class contains the mail related transactions for the customer
+        '''
     def mail_transaction(self,trans_df, login_id, subject, body, receiver_email):
+        '''
+        has the mail sending and recieving details
+        args:
+        trans_df: dataframe about the transactions
+        login_id: login id of the app user
+        subject: containing the details about which the mail is sent
+        body:main content of the mail
+        receiver_email: mail id of the user on whose id mail is sent
+
+        '''
         with open("config.json", "r") as config_file:
             config = json.load(config_file)
         sender_email = config["mailbox_id"]
