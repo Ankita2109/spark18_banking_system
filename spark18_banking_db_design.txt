@@ -1,0 +1,15 @@
+name, email_id, current_balance
+							
+
+date_time, balance, transaction_type -> email_id
+
+ankita
+ankita
+jai
+jai
+kunal
+kunal
+kunal
+prerna
+suraj
+tanu
